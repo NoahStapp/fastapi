@@ -24,7 +24,7 @@ async def fetch_user(username: str) -> User:
 
 
 async def init_db():
-    await init_beanie(database=client.beanie_db, document_models=[User])
+    await init_beanie(database=client.database_name, document_models=[User])
 
 
 @asynccontextmanager
@@ -41,8 +41,11 @@ async def create_user(user: User):
     """
     Insert a new user record.
     """
-    await user.insert()
-    return user
+    try:
+        await user.insert()
+        return user
+    except Exception as e:
+        raise e
 
 
 @app.get("/users/{username}", response_model=User)
@@ -58,5 +61,5 @@ async def get_user(username: str):
     try:
         user = await fetch_user(username)
         return user
-    except HTTPException as e:
+    except Exception as e:
         raise e
